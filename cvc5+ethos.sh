@@ -3,7 +3,7 @@
 input_file="$1"
 
 # Temporary file for the proof
-proof_file="/tmp/ethos.proof.cpc"
+proof_file=$(mktemp /tmp/ethos.proof.XXXXXX.cpc)
 
 # Function to generate proof
 generate_proof() {

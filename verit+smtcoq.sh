@@ -1,7 +1,9 @@
 #!/bin/bash
 
 input_file="$1"
-proof_file="/tmp/proof.vtlog"
+
+# Temporary file for the proof
+proof_file=$(mktemp /tmp/proof.XXXXXX.vtlog)
 
 echo "Running veriT and producing proof"
 
