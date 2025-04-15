@@ -152,33 +152,45 @@ COPY duper.sh /home/user/artifact/duper.sh
 COPY collect_duper_stats.py /home/user/artifact/collect_duper_stats.py
 
 # Clone and build Isabelle and AFP
-# RUN hg clone https://isabelle.in.tum.de/repos/isabelle && \
-#     cd isabelle && \
-#     hg update b87fcf474e7f
-# RUN isabelle/Admin/init && \
-#     isabelle/bin/isabelle build -b HOL
-# RUN hg clone https://foss.heptapod.net/isa-afp/afp-devel && \
-#     cd afp-devel && \
-#     hg update e2ae9549a7b0
-# ENV AFP="/home/user/artifact/afp-devel/thys"
-# ENV PATH="/home/user/artifact/isabelle/bin:$PATH"
+RUN hg clone https://isabelle.in.tum.de/repos/isabelle && \
+    cd isabelle && \
+    hg update b87fcf474e7f
+RUN isabelle/Admin/init && \
+    isabelle/bin/isabelle build -b HOL
+ENV PATH="/home/user/artifact/isabelle/bin:$PATH"
+RUN hg clone https://foss.heptapod.net/isa-afp/afp-devel && \
+    cd afp-devel && \
+    hg update e2ae9549a7b0
+ENV AFP="/home/user/artifact/afp-devel/thys"
+RUN echo 'init_component "/home/user/artifact/afp-devel"' >> /home/user/.isabelle/etc/settings && \
+    isabelle components -a
+RUN isabelle afp_build -- -o document=false -o browser_info=false Abortable_Linearizable_Modules Abstract-Hoare-Logics \
+    Abstract_Completeness Abstract_Soundness Berlekamp_Zassenhaus Bernoulli Bertrands_Postulate Bounded_Deducibility_Security \
+    Buildings Card_Number_Partitions Category3 Cauchy CoSMeDis CoSMed Comparison_Sort_Lower_Bound Consensus_Refined CryptHOL \
+    Density_Compiler Dominance_CHK Ergodic_Theory Falling_Factorial_Sum Finger-Trees First_Welfare_Theorem Fishburn_Impossibility \
+    Generalized_Counting_Sort Grothendieck_Schemes Irrationality_J_Hancl IsaGeoCoq Jordan_Hoelder List_Interleaving List_Update \
+    Localization_Ring Locally-Nameless-Sigma Menger MonoidalCategory Multi_Party_Computation Noninterference_CSP Pell Poincare_Disc \
+    Polynomial_Interpolation Prime_Distribution_Elementary Prime_Harmonic_Series Probabilistic_Noninterference Public_Announcement_Logic \
+    Regex_Equivalence Slicing Subset_Boolean_Algebras Transcendence_Series_Hancl_Rucki Triangle VeriComp
+COPY verit+sledgehammer.sh /home/user/artifact/verit+sledgehammer.sh
+COPY collect_sledgehammer_stats.py /home/user/artifact/collect_sledgehammer_stats.py
 
 # Clone and build smtcoq and veriT
-# RUN opam switch create ocaml-base-compiler.4.11.1
-# RUN opam install -y --confirm-level=unsafe-yes num coq.8.19.2
-# RUN git clone https://github.com/smtcoq/smtcoq && \
-#     cd smtcoq/src && \
-#     git checkout coq-8.19 && \
-#     eval $(opam env) && \
-#     make && make install && \
-#     cd extraction && make
-# RUN curl -L -o veriT9f48a98.tar.gz https://www.lri.fr/~keller/Documents-recherche/Smtcoq/veriT9f48a98.tar.gz && \
-#     tar -xf veriT9f48a98.tar.gz -C /home/user/artifact && \
-#     rm veriT9f48a98.tar.gz
-# RUN cd /home/user/artifact/veriT9f48a98 && \
-#     ./configure && make
-# COPY verit+smtcoq.sh /home/user/artifact/verit+smtcoq.sh
-# COPY collect_smtcoq_stats.py /home/user/artifact/collect_smtcoq_stats.py
+RUN opam switch create ocaml-base-compiler.4.11.1
+RUN opam install -y --confirm-level=unsafe-yes num coq.8.19.2
+RUN git clone https://github.com/smtcoq/smtcoq && \
+    cd smtcoq/src && \
+    git checkout coq-8.19 && \
+    eval $(opam env) && \
+    make && make install && \
+    cd extraction && make
+RUN curl -L -o veriT9f48a98.tar.gz https://www.lri.fr/~keller/Documents-recherche/Smtcoq/veriT9f48a98.tar.gz && \
+    tar -xf veriT9f48a98.tar.gz -C /home/user/artifact && \
+    rm veriT9f48a98.tar.gz
+RUN cd /home/user/artifact/veriT9f48a98 && \
+    ./configure && make
+COPY verit+smtcoq.sh /home/user/artifact/verit+smtcoq.sh
+COPY collect_smtcoq_stats.py /home/user/artifact/collect_smtcoq_stats.py
 
 # Copy the benchmark scripts
 COPY run_benchmarks.py /home/user/artifact/run_benchmarks.py

@@ -2,9 +2,7 @@ import argparse
 import multiprocessing
 import os
 import psutil
-import resource
 import subprocess
-import signal
 import sys
 import time
 import threading
@@ -16,7 +14,7 @@ SOLVER_COMMANDS = {
     "duper": lambda path: ["/home/user/artifact/duper.sh", path],
     "cvc5+leansmt": lambda path: ["/home/user/artifact/cvc5+leansmt.sh", path],
     "cvc5+ethos": lambda path: ["/home/user/artifact/cvc5+ethos.sh", path],
-    "verit+sledgehammer": lambda path: ["/home/user/artifact/sledgehammer+verit.sh", path],
+    "verit+sledgehammer": lambda path: ["/home/user/artifact/verit+sledgehammer.sh", path],
     "verit+smtcoq": lambda path: ["/home/user/artifact/verit+smtcoq.sh", path],
 }
 
