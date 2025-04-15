@@ -1,53 +1,134 @@
-# Artifact for lean-smt
+# Artifact for *Lean-SMT*  
+**Paper submission number:** 305
+**Claimed badges:** Available, Functional, Reusable  
 
-## Structure
+---
 
-The artifact is comprised by the following items:
+## Artifact Requirements
 
-- The cvc5 SMT solver, under the folder `cvc5/`
-- Lean's Duper plugin, under the folder `duper/`
-- Our checker for CPC proofs, under the folder `lean-cpc-checker/`
-- The seventeen provers benchmark, under the folder `benchmarks/seventeen/baseline_probs`
-- The SMT-LIB benchmark, under the folder `benchmarks/SMT-LIB/non-incremental`
-- The files `smtlib_*.txt` and `seventeen_*.txt` specifying which benchmarks to run, depending on the option given to `run_all_benchmarks.sh`.
-- The script `run_all_benchmarks.sh`, which is the entry point for running the benchmark
-- The scripts `cactus.py`, `collect_duper_stats.py`, `collect_ethos_stats.py`, `collect_leansmt_stats.py`, `scatter.py`A and `tables.py` that generate the plots used in our paper
+The artifact is provided as a Docker image. We recommend using a machine with the following specifications:
 
-## Run instructions
+- **CPU**: 16-core (32-thread) processor or higher  
+- **RAM**: 32 GB minimum; 128 GB recommended for full experiments  
+- **Storage**: At least 100 GB free disk space (image size ~48.5 GB uncompressed)  
+- **Operating System**: Linux, macOS, or Windows with Docker support  
+- **Internet Connection**: Required if building the Docker image manually
 
-First, go to the root of the artifact. Then, build the docker image with:
+Estimated runtimes for the benchmark categories:
+
+| Benchmark Set | Configuration                          | Time (approx.) |
+|---------------|----------------------------------------|----------------|
+| Seventeen     | cvc5+leansmt, duper                    | ~1 hour        |
+| Seventeen     | verit+sledgehammer                     | ~8 hours       |
+| SMT-LIB       | cvc5+leansmt, cvc5+ethos, verit+smtcoq | ~4 hours       |
+
+The `smoketest` and `brief` subsets can be run in significantly less time:
+- `smoketest`: ~10 minutes  
+- `brief`: ~5 hour  
+
+Evaluation was performed on a cluster of 48 nodes with:
+- AMD Ryzen 9 7950X @ 4.50GHz
+- 128 GB RAM
+
+---
+
+## Structure and Content
+
+The artifact includes:
+
+- **Source Code:**
+  - `lean-smt/`: Lean-SMT tactic
+  - `lean-cpc-checker/`: SMT-LIB v2 frontend (CPC checker)
+- **Benchmarking & Evaluation Scripts:**
+  - `run_all_benchmarks.sh`: main script for evaluation
+  - `cvc5+ethos.sh`, `cvc5+leansmt.sh`, `duper.sh`, `verit+sledgehammer.sh`, `verit+smtcoq.sh`: wrappers for each configuration
+  - `run_benchmarks.py`: runs a solver over benchmark sets
+  - `collect_*_stats.py`: parses logs into CSVs
+  - `cactus.py`, `scatter.py`, `tables.py`: visualization tools
+  - `benchmarks/seventeen`, `benchmarks/SMT-LIB`: previous benchmark output (with slight changes for cluster runs)
+**Docker Image Contents (`abdoo8080/lean-smt-artifact:v1`):**
+- Precompiled versions of all tools
+- Benchmark datasets (`benchmarks/seventeen`, `benchmarks/SMT-LIB`)
+- Isabelle/AFP versions as used in the Seventeen Provers under the Hammer paper
+- Benchmark index files: `smtlib_*.txt`, `seventeen_*.txt`
+
+---
+
+## Getting Started
+
+Pull the Docker image:
+
+```bash
+docker pull abdoo8080/lean-smt-artifact:v1
+```
+
+Or, build it from source (estimated time: 2-3 hours):
 
 ```bash
 docker build -t artifact .
 ```
 
-Usually this is fast, but in some rare cases Zenodo's server is unusually slow, so it could take up to 2 hours.
+Then run the container:
 
-Next, run the container with `docker run -it artifact`. There will be a script named `run_all_benchmarks.sh` for running all our benchmarks. For running it, it's necessary to provide one of the following options:
+```bash
+docker run -it artifact
+```
 
-- `smoketest`, which runs just 10 samples of each benchmark.
-- `brief`, which runs 500 tests from each benchmark.
-- `full`, which runs the complete benchmark.
+Within the container, use:
 
-The benchmark is split into three categories: `seventeen_fof`, which comprises 5000 test cases; `seventeen_smt2`, which also comprises 5000 test cases and `smtlib`, which comprises 24817 test cases.
+```bash
+./run_all_benchmarks.sh <mode> [<jobs>] [--enable-sledgehammer]
+```
 
-## Expected runtime
+Where `<mode>` is one of:
+- `smoketest`: quick verification (10 samples per category)
+- `brief`: substantial verification (500 samples per category)
+- `full`: complete benchmark set (5000 baseline, 24817 SMT-LIB)
 
-<!-- Abdal please fill here the time it takes to run each version of the script and which hardware you used -->
+**Note:** The `verit+sledgehammer` configuration is excluded by default due to high memory and runtime requirements. You can run it separately by invoking `verit+sledgehammer.sh` with appropriate arguments. It requires:
+- 16 GB memory per job
+- Single-threaded mode
+- Extended timeouts (up to 20 minutes per benchmark)
 
-## Description of produced results
+---
 
-After running the `run_all_benchmarks.sh` script, a folder called `figures` should be created, with 4 plots:
-- QF_SMT-LIB.pdf which compares the time for solving and checking the quantifier free fragment of the SMT-LIB benchmark using `cvc5` with `lean-smt` vs using `cvc5` with `ethos`.
-- SMT-LIB.pdf, which compares the time for solving and checking the SMT-LIB benchmark using `cvc5` with `lean-smt` vs using `cvc5` with `ethos`.
-- scatter.pdf, which compares the proof checking time of `ethos` and `lean-smt`
-- seventeen.pdf, which compares the perfomances of `duper` and `lean-smt` in the seventeen provers benchmark
+## Functional Badge
 
-To be able to see them, you need to copy them outside the container to the host machine. This can be done,
-for instance, by running `docker cp <image-id>:/home/user/artifact/figures/*.pdf $HOME`, where `<image-id>`
-is the id corresponding to the docker image of the artifact, which can be obtained by running
-`docker ps`, which will give the id in the first column of the line corresponding to the artifact's image.
+This artifact reproduces all experimental results shown in the paper, including:
 
-<!-- Are all the claims of the paper replicable?  -->
+- Figures: `seventeen.pdf`, `QF_SMT-LIB.pdf`, `SMT-LIB.pdf`, `scatter.pdf`
+- Tables: `seventeen.tex`, `QF_SMT-LIB.tex`, `SMT-LIB.tex`
 
-<!-- Reference: https://conferences.i-cav.org/2025/artifact/ -->
+These are generated after running the `run_all_benchmarks.sh` script and are placed in the `figures/` and `tables/` directories.
+
+To copy them to the host machine:
+
+```bash
+docker ps        # Get <container-id>
+docker cp <container-id>:/home/user/artifact/figures/<figure>.pdf ./output/
+```
+
+Correctness is ensured by Lean's kernel checking the proofs:
+- For CPC checker: see `lean-cpc-checker/Checker.lean`, lines 111–119
+- For tactic-based checking, Lean's frontend automatically invokes the kernel after proof generation
+
+---
+
+## Reusable Badge
+
+The Lean-SMT tactic and its SMT-LIB frontend are open source, licensed under **Apache 2.0**:
+
+- [Lean-SMT GitHub Repository (link)](https://github.com/ufmg-smite/lean-smt)
+- [CPC Checker GitHub Repository (link)](https://github.com/abdoo8080/lean-cpc-checker)
+
+### Portability & Compatibility
+
+- Works with Lean v4.15.0 (Jan 2025 toolchain)
+- Compatible with Linux and macOS (both x86 and ARM)
+- Planned support for Windows
+
+To use Lean-SMT in another Lean project:
+1. Add it as a dependency in `lakefile.toml` similar to how it is included in `lean-cpc-checker/lakefile.toml`
+2. Run `lake update` and `lake build` to compile
+
+All dependencies are explicitly listed and version-pinned in the `Dockerfile`. Additional instructions for standalone installation outside Docker can be provided if needed.
