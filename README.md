@@ -45,7 +45,7 @@ The artifact includes:
   - `run_benchmarks.py`: runs a solver over benchmark sets
   - `collect_*_stats.py`: parses logs into CSVs
   - `cactus.py`, `scatter.py`, `tables.py`: visualization tools
-  - `benchmarks/seventeen`, `benchmarks/SMT-LIB`: previous benchmark output (with slight changes for cluster runs)
+  - `data/seventeen`, `data/SMT-LIB`: data from paper evaluation (slightly modified for artifact scripts)
 **Docker Image Contents (`abdoo8080/lean-smt-artifact:v1`):**
 - Precompiled versions of all tools
 - Benchmark datasets (`benchmarks/seventeen`, `benchmarks/SMT-LIB`)
@@ -65,13 +65,13 @@ docker pull abdoo8080/lean-smt-artifact:v1
 Or, build it from source (estimated time: 2-3 hours):
 
 ```bash
-docker build -t artifact .
+docker build -t abdoo8080/lean-smt-artifact:v1 .
 ```
 
 Then run the container:
 
 ```bash
-docker run -it artifact
+docker run -it abdoo8080/lean-smt-artifact:v1
 ```
 
 Within the container, use:
@@ -85,7 +85,7 @@ Where `<mode>` is one of:
 - `brief`: substantial verification (500 samples per category)
 - `full`: complete benchmark set (5000 baseline, 24817 SMT-LIB)
 
-**Note:** The `verit+sledgehammer` configuration is excluded by default due to high memory and runtime requirements. You can run it separately by invoking `verit+sledgehammer.sh` with appropriate arguments. It requires:
+**Note:** The `verit+sledgehammer` configuration is excluded by default due to high memory and runtime requirements. You can run it separately by invoking `run_all_benchmarks.sh` with `--enable-sledgehammer` argument. It requires:
 - 16 GB memory per job
 - Single-threaded mode
 - Extended timeouts (up to 20 minutes per benchmark)

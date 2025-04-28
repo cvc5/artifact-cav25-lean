@@ -199,5 +199,8 @@ COPY scatter.py /home/user/artifact/scatter.py
 COPY tables.py /home/user/artifact/tables.py
 COPY run_all_benchmarks.sh /home/user/artifact/run_all_benchmarks.sh
 
+# Copy previous results
+COPY data/ /home/user/artifact/data/
+
 # Set the default command to run htop
 CMD ["bash"]
