@@ -1,6 +1,6 @@
 # Artifact for *Lean-SMT*  
-**Paper submission number:** 305
-**Claimed badges:** Available, Functional, Reusable  
+**Paper submission number:** 305  
+**Claimed badges:** Available, Functional, Reusable
 
 ---
 
