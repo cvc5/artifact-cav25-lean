@@ -14,12 +14,11 @@ SOLVER_COMMANDS = {
     "duper": lambda path: ["/home/user/artifact/duper.sh", path],
     "cvc5+leansmt": lambda path: ["/home/user/artifact/cvc5+leansmt.sh", path],
     "cvc5+ethos": lambda path: ["/home/user/artifact/cvc5+ethos.sh", path],
-    "verit+sledgehammer": lambda path: ["/home/user/artifact/verit+sledgehammer.sh", path],
+    "verit+sledgehammer": None,  # We'll handle this one specially
     "verit+smtcoq": lambda path: ["/home/user/artifact/verit+smtcoq.sh", path],
 }
 
 BENCHMARK_ROOT = Path("/home/user/artifact/benchmarks")
-OUTPUT_ROOT = Path("/home/user/artifact/output")
 
 def kill_process_tree(pid):
     try:
@@ -78,11 +77,11 @@ def run_with_limits(cmd, timeout, memout_mb):
     except Exception as e:
         return "ERROR", "", str(e)
 
-def save_output(solver, benchmark_path, stdout, stderr):
+def save_output(solver, benchmark_path, stdout, stderr, out_dir):
     try:
         # Compute relative benchmark path
         rel_path = Path(benchmark_path).relative_to(BENCHMARK_ROOT)
-        out_dir = OUTPUT_ROOT / solver / rel_path.parent
+        out_dir = Path(out_dir) / solver / rel_path.parent
         out_dir.mkdir(parents=True, exist_ok=True)
 
         # Save stdout and stderr
@@ -93,12 +92,18 @@ def save_output(solver, benchmark_path, stdout, stderr):
     except Exception as e:
         print(f"Failed to save output for {benchmark_path}: {e}", file=sys.stderr)
 
-def run_single_benchmark(solver_name, timeout, memout_mb, benchmark_path):
+def run_single_benchmark(solver_name, timeout, memout_mb, out_dir, benchmark_path):
     if solver_name not in SOLVER_COMMANDS:
-        return (benchmark_path, "INVALID_SOLVER", "", f"Solver {solver_name} is not recognized.")
-    cmd = SOLVER_COMMANDS[solver_name](benchmark_path)
+        return (benchmark_path, "INVALID_SOLVER", f"Solver {solver_name} is not recognized.")
+
+    # Only pass the out_dir argument to verit+sledgehammer
+    if solver_name == "verit+sledgehammer":
+        cmd = ["/home/user/artifact/verit+sledgehammer.sh", out_dir, benchmark_path]
+    else:
+        cmd = SOLVER_COMMANDS[solver_name](benchmark_path)
+
     code, out, err = run_with_limits(cmd, timeout, memout_mb)
-    save_output(solver_name, benchmark_path, out, err)
+    save_output(solver_name, benchmark_path, out, err, out_dir)
     return (benchmark_path, code)
 
 def read_benchmarks(file_path):
@@ -116,12 +121,14 @@ def main():
     parser.add_argument("--jobs", "-j", type=int, default=1, help="Number of benchmarks to run in parallel")
     parser.add_argument("--timeout", "-t", type=int, default=60, help="Timeout (in seconds) per benchmark")
     parser.add_argument("--memout", "-m", type=int, default=1024, help="Memory limit (in MB) per benchmark")
+    parser.add_argument("--output_dir", "-o", type=str, default="/home/user/artifact/output",
+                        help="Root directory for solver output")
 
     args = parser.parse_args()
     benchmark_paths = read_benchmarks(args.input_file)
 
     with multiprocessing.Pool(args.jobs) as pool:
-        run_func = partial(run_single_benchmark, args.solver, args.timeout, args.memout)
+        run_func = partial(run_single_benchmark, args.solver, args.timeout, args.memout, args.output_dir)
         results = pool.map(run_func, benchmark_paths)
 
     print(f"\nSummary for solver: {args.solver}")

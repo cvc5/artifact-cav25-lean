@@ -8,7 +8,7 @@ def load_csv(file):
     df = pd.read_csv(file)
 
     # Drop first 5 components of the path in the benchmark
-    df['benchmark'] = df['benchmark'].apply(lambda x: '/'.join(x.split('/')[6:]) if '/' in x else x)
+    df['benchmark'] = df['benchmark'].apply(lambda x: '/'.join(x.split('/')[8:]) if '/' in x else x)
 
     if 'check' in df.columns:
         df['total_check_time'] = df['check']

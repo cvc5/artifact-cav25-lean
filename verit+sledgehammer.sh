@@ -1,11 +1,12 @@
 #!/bin/bash
 
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 <path/to/file.smt_in>"
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <output_dir> <path/to/file.smt_in>"
     exit 1
 fi
 
-input_file="$1"
+out_dir="$1"
+input_file="$2"
 
 # Extract "VeriComp" from the grandparent directory of the file
 module="$(basename "$(dirname "$(dirname "$input_file")")")"
@@ -35,7 +36,7 @@ echo "test_with_lines: $test_with_lines"
 # Strip the leading "/home/user/artifact/benchmarks/" portion
 relative_path="${input_file#/home/user/artifact/benchmarks/}"
 
-output_dir="/home/user/artifact/output/verit+sledgehammer/$relative_path"
+output_dir="$out_dir/verit+sledgehammer/$relative_path"
 
 mkdir -p "$output_dir"
 cd "$output_dir"

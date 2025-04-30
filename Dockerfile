@@ -1,5 +1,5 @@
-# Use Ubuntu 24.04 as the base image with x86 architecture
-FROM --platform=linux/amd64 ubuntu:24.04
+# Use Ubuntu 24.04 as the base image
+FROM ubuntu:24.04
 
 # Set up non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
@@ -33,12 +33,12 @@ RUN find /home/user/artifact/benchmarks/seventeen/baseline_probs/FOF -type f -na
         output_file="$output_dir/$(basename "$file")"; \
         (sed '/^[[:blank:]]*%/d;s/%.*//' "$file" | awk '{$1=$1};1') > "$output_file"; \
     done
-RUN find /home/user/artifact/benchmarks/seventeen/baseline_probs/clean_FOF -type f -name "*.p" > /home/user/artifact/seventeen_fof_full.txt && \
-    sort /home/user/artifact/seventeen_fof_full.txt -o /home/user/artifact/seventeen_fof_full.txt && \
-    bash -c 'shuf /home/user/artifact/seventeen_fof_full.txt --random-source=<(yes 42) -o /home/user/artifact/seventeen_fof_full.txt'
-RUN find /home/user/artifact/benchmarks/seventeen/baseline_probs/SMT2 -type f -name "*.smt_in" > /home/user/artifact/seventeen_smt2_full.txt && \
-    sort /home/user/artifact/seventeen_smt2_full.txt -o /home/user/artifact/seventeen_smt2_full.txt && \
-    bash -c 'shuf /home/user/artifact/seventeen_smt2_full.txt --random-source=<(yes 42) -o /home/user/artifact/seventeen_smt2_full.txt'
+RUN find /home/user/artifact/benchmarks/seventeen/baseline_probs/clean_FOF -type f -name "*.p" > /home/user/artifact/seventeen_fof_all.txt && \
+    sort /home/user/artifact/seventeen_fof_all.txt -o /home/user/artifact/seventeen_fof_all.txt && \
+    bash -c 'shuf /home/user/artifact/seventeen_fof_all.txt --random-source=<(yes 42) -o /home/user/artifact/seventeen_fof_all.txt'
+RUN find /home/user/artifact/benchmarks/seventeen/baseline_probs/SMT2 -type f -name "*.smt_in" > /home/user/artifact/seventeen_smt2_all.txt && \
+    sort /home/user/artifact/seventeen_smt2_all.txt -o /home/user/artifact/seventeen_smt2_all.txt && \
+    bash -c 'shuf /home/user/artifact/seventeen_smt2_all.txt --random-source=<(yes 42) -o /home/user/artifact/seventeen_smt2_all.txt'
 
 # Download and unzip SMT-LIB benchmarks for supported theories: (QF_)?(UF|(UF)?(IDL|RDL|IRDL|LIA|LRA|LIRA))
 RUN mkdir -p /home/user/artifact/benchmarks/SMT-LIB
@@ -87,23 +87,13 @@ RUN curl -L -o QF_UFLIA.tar.zst https://zenodo.org/records/11061097/files/QF_UFL
 RUN curl -L -o QF_UFLRA.tar.zst https://zenodo.org/records/11061097/files/QF_UFLRA.tar.zst?download=1 && \
     tar -xf QF_UFLRA.tar.zst -C /home/user/artifact/benchmarks/SMT-LIB && \
     rm QF_UFLRA.tar.zst
-# Store full paths of UNSAT SMT-LIB benchmarks into smtlib_full.txt
-RUN find /home/user/artifact/benchmarks/SMT-LIB -type f -name "*.smt2" -exec grep -l "(set-info :status unsat)" {} \; > /home/user/artifact/smtlib_full.txt && \
-    sort /home/user/artifact/smtlib_full.txt -o /home/user/artifact/smtlib_full.txt && \
-    bash -c 'shuf /home/user/artifact/smtlib_full.txt --random-source=<(yes 42) -o /home/user/artifact/smtlib_full.txt'
-
-# Generate small subsets of benchmarks
-RUN bash -c 'shuf -n 10 --random-source=<(yes 42) /home/user/artifact/seventeen_fof_full.txt > /home/user/artifact/seventeen_fof_10.txt'
-RUN bash -c 'shuf -n 10 --random-source=<(yes 42) /home/user/artifact/seventeen_smt2_full.txt > /home/user/artifact/seventeen_smt2_10.txt'
-RUN bash -c 'shuf -n 10 --random-source=<(yes 42) /home/user/artifact/smtlib_full.txt > /home/user/artifact/smtlib_10.txt'
-
-# Generate medium subsets of benchmarks
-RUN bash -c 'shuf -n 500 --random-source=<(yes 42) /home/user/artifact/seventeen_fof_full.txt > /home/user/artifact/seventeen_fof_500.txt'
-RUN bash -c 'shuf -n 500 --random-source=<(yes 42) /home/user/artifact/seventeen_smt2_full.txt > /home/user/artifact/seventeen_smt2_500.txt'
-RUN bash -c 'shuf -n 500 --random-source=<(yes 42) /home/user/artifact/smtlib_full.txt > /home/user/artifact/smtlib_500.txt'
+# Store all paths of UNSAT SMT-LIB benchmarks into smtlib_all.txt
+RUN find /home/user/artifact/benchmarks/SMT-LIB -type f -name "*.smt2" -exec grep -l "(set-info :status unsat)" {} \; > /home/user/artifact/smtlib_all.txt && \
+    sort /home/user/artifact/smtlib_all.txt -o /home/user/artifact/smtlib_all.txt && \
+    bash -c 'shuf /home/user/artifact/smtlib_all.txt --random-source=<(yes 42) -o /home/user/artifact/smtlib_all.txt'
 
 # Create a virtual environment and install Python dependencies
-COPY requirements.txt /home/user/artifact/requirements.txt
+COPY --chown=user:group requirements.txt /home/user/artifact/requirements.txt
 RUN python3 -m venv /home/user/venv && \
     /home/user/venv/bin/pip install --upgrade pip && \
     /home/user/venv/bin/pip install -r /home/user/artifact/requirements.txt
@@ -125,22 +115,19 @@ RUN git clone https://github.com/abdoo8080/lean-cpc-checker && \
     git checkout 2b00b3061b99f60ec5eca0cf994bfb9d95d19a86 && \
     lake update && \
     lake build
-COPY cvc5+leansmt.sh /home/user/artifact/cvc5+leansmt.sh
-COPY collect_leansmt_stats.py /home/user/artifact/collect_leansmt_stats.py
-
-# Define a build argument for the number of threads
-ARG THREADS=4
+COPY --chown=user:group cvc5+leansmt.sh /home/user/artifact/cvc5+leansmt.sh
+COPY --chown=user:group collect_leansmt_stats.py /home/user/artifact/collect_leansmt_stats.py
 
 # Clone and build cvc5 and ethos
 RUN git clone https://github.com/cvc5/cvc5 && \
     cd cvc5 && \
     git checkout 8cfac8f956c4ef1543f52eb2d862d81367b3d3ed && \
     ./configure.sh production --static --auto-download && \
-    cd build && make -j$THREADS
+    cd build && make -j"$(nproc)"
 RUN cd /home/user/artifact/cvc5 && \
     contrib/get-ethos-checker
-COPY cvc5+ethos.sh /home/user/artifact/cvc5+ethos.sh
-COPY collect_ethos_stats.py /home/user/artifact/collect_ethos_stats.py
+COPY --chown=user:group cvc5+ethos.sh /home/user/artifact/cvc5+ethos.sh
+COPY --chown=user:group collect_ethos_stats.py /home/user/artifact/collect_ethos_stats.py
 
 # Clone and build duper
 RUN git clone https://github.com/leanprover-community/duper && \
@@ -148,8 +135,8 @@ RUN git clone https://github.com/leanprover-community/duper && \
     git checkout v0.0.22 && \
     lake update && \
     lake build
-COPY duper.sh /home/user/artifact/duper.sh
-COPY collect_duper_stats.py /home/user/artifact/collect_duper_stats.py
+COPY --chown=user:group duper.sh /home/user/artifact/duper.sh
+COPY --chown=user:group collect_duper_stats.py /home/user/artifact/collect_duper_stats.py
 
 # Clone and build Isabelle and AFP
 RUN hg clone https://isabelle.in.tum.de/repos/isabelle && \
@@ -172,8 +159,8 @@ RUN isabelle afp_build -- -o document=false -o browser_info=false Abortable_Line
     Localization_Ring Locally-Nameless-Sigma Menger MonoidalCategory Multi_Party_Computation Noninterference_CSP Pell Poincare_Disc \
     Polynomial_Interpolation Prime_Distribution_Elementary Prime_Harmonic_Series Probabilistic_Noninterference Public_Announcement_Logic \
     Regex_Equivalence Slicing Subset_Boolean_Algebras Transcendence_Series_Hancl_Rucki Triangle VeriComp
-COPY verit+sledgehammer.sh /home/user/artifact/verit+sledgehammer.sh
-COPY collect_sledgehammer_stats.py /home/user/artifact/collect_sledgehammer_stats.py
+COPY --chown=user:group verit+sledgehammer.sh /home/user/artifact/verit+sledgehammer.sh
+COPY --chown=user:group collect_sledgehammer_stats.py /home/user/artifact/collect_sledgehammer_stats.py
 
 # Clone and build smtcoq and veriT
 RUN opam switch create ocaml-base-compiler.4.11.1
@@ -188,19 +175,20 @@ RUN curl -L -o veriT9f48a98.tar.gz https://www.lri.fr/~keller/Documents-recherch
     tar -xf veriT9f48a98.tar.gz -C /home/user/artifact && \
     rm veriT9f48a98.tar.gz
 RUN cd /home/user/artifact/veriT9f48a98 && \
-    ./configure && make
-COPY verit+smtcoq.sh /home/user/artifact/verit+smtcoq.sh
-COPY collect_smtcoq_stats.py /home/user/artifact/collect_smtcoq_stats.py
+    ./configure && make -j"$(nproc)"
+COPY --chown=user:group verit+smtcoq.sh /home/user/artifact/verit+smtcoq.sh
+COPY --chown=user:group collect_smtcoq_stats.py /home/user/artifact/collect_smtcoq_stats.py
 
 # Copy the benchmark scripts
-COPY run_benchmarks.py /home/user/artifact/run_benchmarks.py
-COPY cactus.py /home/user/artifact/cactus.py
-COPY scatter.py /home/user/artifact/scatter.py
-COPY tables.py /home/user/artifact/tables.py
-COPY run_all_benchmarks.sh /home/user/artifact/run_all_benchmarks.sh
+COPY --chown=user:group run_benchmarks.py /home/user/artifact/run_benchmarks.py
+COPY --chown=user:group cactus.py /home/user/artifact/cactus.py
+COPY --chown=user:group scatter.py /home/user/artifact/scatter.py
+COPY --chown=user:group tables.py /home/user/artifact/tables.py
+COPY --chown=user:group generate_figures_and_tables.sh /home/user/artifact/generate_figures_and_tables.sh
+COPY --chown=user:group run_all_benchmarks.sh /home/user/artifact/run_all_benchmarks.sh
 
 # Copy previous results
-COPY data/ /home/user/artifact/data/
+COPY --chown=user:group data/ /home/user/artifact/data/
 
 # Set the default command to run htop
 CMD ["bash"]

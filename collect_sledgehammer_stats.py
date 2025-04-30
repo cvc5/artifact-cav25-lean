@@ -23,7 +23,7 @@ def parse_log_file(filepath):
                 else:
                     # Extract ATP time (solve time)
                     if "+" in line:
-                        atp_start = line.find("+") + 1
+                        atp_start = line.find("+") + len("+")
                         atp_end = line.find(")", atp_start)
                         if atp_start != -1 and atp_end != -1 and atp_start < atp_end:
                             atp_time = int(line[atp_start:atp_end])
@@ -34,8 +34,8 @@ def parse_log_file(filepath):
                             data["solve"] = str(int(atp_time))
 
                     # Extract preplay time (check time)
-                    if "some smt" in line:
-                        preplay_start = line.rfind("(") + 1
+                    if "some smt" in line and "succeeded" in line:
+                        preplay_start = line.rfind("succeeded (") + len("succeeded (")
                         preplay_end = line.find(")", preplay_start)
 
                         if preplay_start != -1 and preplay_end != -1 and preplay_start < preplay_end:
