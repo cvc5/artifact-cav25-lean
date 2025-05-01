@@ -42,6 +42,7 @@ The artifact includes:
   - `lean-cpc-checker/`: SMT-LIB v2 frontend (CPC checker)
 - **Benchmarking & Evaluation Scripts:**
   - `run_all_benchmarks.sh`: main script for evaluation
+  - `generate_figures_and_tables.sh`: generates figures and tables from data in `data` directory
   - `cvc5+ethos.sh`, `cvc5+leansmt.sh`, `duper.sh`, `verit+sledgehammer.sh`, `verit+smtcoq.sh`: wrappers for each configuration
   - `run_benchmarks.py`: runs a solver over benchmark sets
   - `collect_*_stats.py`: parses logs into CSVs
@@ -143,4 +144,4 @@ To use Lean-SMT in another Lean project:
 1. Add it as a dependency in `lakefile.toml` similar to how it is included in `lean-cpc-checker/lakefile.toml`
 2. Run `lake update` and `lake build` to compile
 
-All dependencies are explicitly listed and version-pinned in the `Dockerfile`. Additional instructions for standalone installation outside Docker can be provided if needed.
+All dependencies are explicitly listed and version-pinned in the `Dockerfile`.
