@@ -57,7 +57,7 @@ The artifact includes:
 
 ## Getting Started
 
-Pull the Docker image:
+Pull the Docker image (available for x86 architecture):
 
 ```bash
 docker pull abdoo8080/lean-smt-artifact:v2
