@@ -16,11 +16,11 @@ The artifact is provided as a Docker image. We recommend using a machine with th
 
 Estimated runtimes for the benchmark categories:
 
-| Benchmark Set | Configuration                          | Time (approx.) |
-|---------------|----------------------------------------|----------------|
-| Seventeen     | cvc5+leansmt, duper                    | ~1 hour        |
-| Seventeen     | verit+sledgehammer                     | ~8 hours       |
-| SMT-LIB       | cvc5+leansmt, cvc5+ethos, verit+smtcoq | ~4 hours       |
+| Benchmark Set | Configuration                                   | Time (approx.) |
+|---------------|-------------------------------------------------|----------------|
+| Seventeen     | cvc5+leansmt±compiler, duper                    | ~1 hour        |
+| Seventeen     | verit+sledgehammer                              | ~8 hours       |
+| SMT-LIB       | cvc5+leansmt±compiler, cvc5+ethos, verit+smtcoq | ~4 hours       |
 
 Evaluation was performed on a cluster of 48 nodes with:
 - AMD Ryzen 9 7950X @ 4.50GHz
@@ -43,12 +43,12 @@ The artifact includes:
 - **Benchmarking & Evaluation Scripts:**
   - `run_all_benchmarks.sh`: main script for evaluation
   - `generate_figures_and_tables.sh`: generates figures and tables from data in `data` directory
-  - `cvc5+ethos.sh`, `cvc5+leansmt.sh`, `duper.sh`, `verit+sledgehammer.sh`, `verit+smtcoq.sh`: wrappers for each configuration
+  - `cvc5+ethos.sh`, `cvc5+leansmt±compiler.sh`, `duper.sh`, `verit+sledgehammer.sh`, `verit+smtcoq.sh`: wrappers for each configuration
   - `run_benchmarks.py`: runs a solver over benchmark sets
   - `collect_*_stats.py`: parses logs into CSVs
-  - `cactus.py`, `scatter.py`, `tables.py`: visualization tools
+  - `cactus.py`, `scatter±compiler.py`, `tables.py`: visualization tools
   - `data/all/seventeen`, `data/all/SMT-LIB`: data from paper evaluation (slightly modified for artifact scripts)
-**Docker Image Contents (`abdoo8080/lean-smt-artifact:v2`):**
+**Docker Image Contents (`abdoo8080/lean-smt-artifact:v3`):**
 - Precompiled versions of all tools
 - Benchmark datasets (`benchmarks/seventeen`, `benchmarks/SMT-LIB`)
 - Isabelle/AFP versions as used in the Seventeen Provers under the Hammer paper
@@ -60,19 +60,19 @@ The artifact includes:
 Pull the Docker image (available for x86 architecture):
 
 ```bash
-docker pull abdoo8080/lean-smt-artifact:v2
+docker pull abdoo8080/lean-smt-artifact:v3
 ```
 
 Or, build it from source (estimated time: 2-3 hours on recommended hardware):
 
 ```bash
-docker build -t abdoo8080/lean-smt-artifact:v2 .
+docker build -t abdoo8080/lean-smt-artifact:v3 .
 ```
 
 Then run the container:
 
 ```bash
-docker run -it abdoo8080/lean-smt-artifact:v2
+docker run -it abdoo8080/lean-smt-artifact:v3
 ```
 
 Within the container, use:
@@ -109,7 +109,7 @@ This script scans the `data/all` directory, then produces the figures and tables
 
 This artifact reproduces all experimental results shown in the paper, including:
 
-- Figures: `seventeen.pdf`, `QF_SMT-LIB.pdf`, `SMT-LIB.pdf`, `scatter.pdf`
+- Figures: `seventeen.pdf`, `QF_SMT-LIB.pdf`, `SMT-LIB.pdf`, `scatter±compiler.pdf`
 - Tables: `seventeen.tex`, `QF_SMT-LIB.tex`, `SMT-LIB.tex`
 
 These are generated after running the `run_all_benchmarks.sh` script and are placed in the `figures/<mode>` and `tables/<mode>` directories.
@@ -136,9 +136,8 @@ The artifact, encompassing the Lean-SMT tactic, its SMT-LIB frontend, and the as
 
 ### Portability & Compatibility
 
-- Works with Lean v4.15.0 (Jan 2025 toolchain)
-- Compatible with Linux and macOS (both x86 and ARM)
-- Planned support for Windows
+- Works with Lean v4.20.0-rc5 (June 2025 toolchain release candidate)
+- Compatible with Linux and macOS (both x86 and ARM) and Windows (only x86 as Lean does not currently support ARM on Windows)
 
 To use Lean-SMT in another Lean project:
 1. Add it as a dependency in `lakefile.toml` similar to how it is included in `lean-cpc-checker/lakefile.toml`

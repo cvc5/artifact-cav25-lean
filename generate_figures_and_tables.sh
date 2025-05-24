@@ -35,7 +35,8 @@ mkdir -p "${FIGURES_DIR}" "${TABLES_DIR}"
 python3 cactus.py "${DATA_DIR}/seventeen" "${FIGURES_DIR}/seventeen.pdf"
 python3 cactus.py "${DATA_DIR}/SMT-LIB" "${FIGURES_DIR}/SMT-LIB.pdf"
 python3 cactus.py --benchmark_filter QF_ "${DATA_DIR}/SMT-LIB" "${FIGURES_DIR}/QF_SMT-LIB.pdf"
-python3 scatter.py "${DATA_DIR}/SMT-LIB/cvc5+leansmt.csv" "${DATA_DIR}/SMT-LIB/cvc5+ethos.csv" "${FIGURES_DIR}/scatter.pdf"
+python3 scatter.py "${DATA_DIR}/SMT-LIB/cvc5+leansmt-compiler.csv" "${DATA_DIR}/SMT-LIB/cvc5+ethos.csv" "${FIGURES_DIR}/scatter-compiler.pdf"
+python3 scatter.py "${DATA_DIR}/SMT-LIB/cvc5+leansmt+compiler.csv" "${DATA_DIR}/SMT-LIB/cvc5+ethos.csv" "${FIGURES_DIR}/scatter+compiler.pdf"
 
 # Generate tables
 python3 tables.py "${DATA_DIR}/seventeen" "${TABLES_DIR}/seventeen.tex"

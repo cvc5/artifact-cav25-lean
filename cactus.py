@@ -51,7 +51,7 @@ def generate_plot(data, output_file):
     plt.xlabel("Number of benchmarks")
     plt.ylabel("Time (s)")
     plt.yscale('log')  # Set y-axis to logarithmic scale
-    plt.legend(title="Solver+Checker")
+    plt.legend(title="solver+checker")
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
 

@@ -109,35 +109,6 @@ ENV PATH="/home/user/.elan/bin:$PATH"
 RUN yes "/usr/local/bin" | bash -c "sh <(curl -fsSL https://opam.ocaml.org/install.sh)" && \
     opam init --disable-sandboxing --bare
 
-# Clone and build cpc-checker
-RUN git clone https://github.com/abdoo8080/lean-cpc-checker && \
-    cd lean-cpc-checker && \
-    git checkout 2b00b3061b99f60ec5eca0cf994bfb9d95d19a86 && \
-    lake update && \
-    lake build
-COPY --chown=user:group cvc5+leansmt.sh /home/user/artifact/cvc5+leansmt.sh
-COPY --chown=user:group collect_leansmt_stats.py /home/user/artifact/collect_leansmt_stats.py
-
-# Clone and build cvc5 and ethos
-RUN git clone https://github.com/cvc5/cvc5 && \
-    cd cvc5 && \
-    git checkout 8cfac8f956c4ef1543f52eb2d862d81367b3d3ed && \
-    ./configure.sh production --static --auto-download && \
-    cd build && make -j"$(nproc)"
-RUN cd /home/user/artifact/cvc5 && \
-    contrib/get-ethos-checker
-COPY --chown=user:group cvc5+ethos.sh /home/user/artifact/cvc5+ethos.sh
-COPY --chown=user:group collect_ethos_stats.py /home/user/artifact/collect_ethos_stats.py
-
-# Clone and build duper
-RUN git clone https://github.com/leanprover-community/duper && \
-    cd duper && \
-    git checkout v0.0.22 && \
-    lake update && \
-    lake build
-COPY --chown=user:group duper.sh /home/user/artifact/duper.sh
-COPY --chown=user:group collect_duper_stats.py /home/user/artifact/collect_duper_stats.py
-
 # Clone and build Isabelle and AFP
 RUN hg clone https://isabelle.in.tum.de/repos/isabelle && \
     cd isabelle && \
@@ -178,6 +149,36 @@ RUN cd /home/user/artifact/veriT9f48a98 && \
     ./configure && make -j"$(nproc)"
 COPY --chown=user:group verit+smtcoq.sh /home/user/artifact/verit+smtcoq.sh
 COPY --chown=user:group collect_smtcoq_stats.py /home/user/artifact/collect_smtcoq_stats.py
+
+# Clone and build cvc5 and ethos
+RUN git clone https://github.com/cvc5/cvc5 && \
+    cd cvc5 && \
+    git checkout 8aeaa1938d6cdc1dfe65d4f4414bee93c44516f7 && \
+    ./configure.sh production --static --auto-download && \
+    cd build && make -j"$(nproc)"
+RUN cd /home/user/artifact/cvc5 && \
+    contrib/get-ethos-checker
+COPY --chown=user:group cvc5+ethos.sh /home/user/artifact/cvc5+ethos.sh
+COPY --chown=user:group collect_ethos_stats.py /home/user/artifact/collect_ethos_stats.py
+
+# Clone and build duper
+RUN git clone https://github.com/leanprover-community/duper && \
+    cd duper && \
+    git checkout v0.0.26 && \
+    lake update && \
+    lake build
+COPY --chown=user:group duper.sh /home/user/artifact/duper.sh
+COPY --chown=user:group collect_duper_stats.py /home/user/artifact/collect_duper_stats.py
+
+# Clone and build cpc-checker
+RUN git clone https://github.com/abdoo8080/lean-cpc-checker && \
+    cd lean-cpc-checker && \
+    git checkout c513efca48c82ec8ab3587adf5f762be28286b9a && \
+    lake update && \
+    lake build
+COPY --chown=user:group cvc5+leansmt-compiler.sh /home/user/artifact/cvc5+leansmt-compiler.sh
+COPY --chown=user:group cvc5+leansmt+compiler.sh /home/user/artifact/cvc5+leansmt+compiler.sh
+COPY --chown=user:group collect_leansmt_stats.py /home/user/artifact/collect_leansmt_stats.py
 
 # Copy the benchmark scripts
 COPY --chown=user:group run_benchmarks.py /home/user/artifact/run_benchmarks.py

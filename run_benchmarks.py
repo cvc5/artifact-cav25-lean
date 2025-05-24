@@ -12,7 +12,8 @@ from pathlib import Path
 # Define how to invoke each solver
 SOLVER_COMMANDS = {
     "duper": lambda path: ["/home/user/artifact/duper.sh", path],
-    "cvc5+leansmt": lambda path: ["/home/user/artifact/cvc5+leansmt.sh", path],
+    "cvc5+leansmt-compiler": lambda path: ["/home/user/artifact/cvc5+leansmt-compiler.sh", path],
+    "cvc5+leansmt+compiler": lambda path: ["/home/user/artifact/cvc5+leansmt+compiler.sh", path],
     "cvc5+ethos": lambda path: ["/home/user/artifact/cvc5+ethos.sh", path],
     "verit+sledgehammer": None,  # We'll handle this one specially
     "verit+smtcoq": lambda path: ["/home/user/artifact/verit+smtcoq.sh", path],

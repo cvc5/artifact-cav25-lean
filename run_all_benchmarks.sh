@@ -176,11 +176,17 @@ run_seventeen_benchmarks() {
   local memout="$5"
   local sledge="$6"
 
-  # Always 60s for cvc5+leansmt
-  python3 run_benchmarks.py "$smt2_file" cvc5+leansmt \
+  # Always 60s for cvc5+leansmt-compiler
+  python3 run_benchmarks.py "$smt2_file" cvc5+leansmt-compiler \
     --jobs "$jobs" --timeout "$timeout" --memout "$memout" \
     --output_dir "$OUTPUT_DIR"
-  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt/seventeen" "$DATA_DIR/seventeen/cvc5+leansmt.csv"
+  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt-compiler/seventeen" "$DATA_DIR/seventeen/cvc5+leansmt-compiler.csv"
+
+  # Always 60s for cvc5+leansmt+compiler
+  python3 run_benchmarks.py "$smt2_file" cvc5+leansmt+compiler \
+    --jobs "$jobs" --timeout "$timeout" --memout "$memout" \
+    --output_dir "$OUTPUT_DIR"
+  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt+compiler/seventeen" "$DATA_DIR/seventeen/cvc5+leansmt+compiler.csv"
 
   # Always 60s for duper
   python3 run_benchmarks.py "$fof_file" duper \
@@ -207,11 +213,17 @@ run_smtlib_benchmarks() {
   local timeout="$3"
   local memout="$4"
 
-  # cvc5+leansmt
-  python3 run_benchmarks.py "$smt_file" cvc5+leansmt \
+  # cvc5+leansmt-compiler
+  python3 run_benchmarks.py "$smt_file" cvc5+leansmt-compiler \
     --jobs "$jobs" --timeout "$timeout" --memout "$memout" \
     --output_dir "$OUTPUT_DIR"
-  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt/SMT-LIB" "$DATA_DIR/SMT-LIB/cvc5+leansmt.csv"
+  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt-compiler/SMT-LIB" "$DATA_DIR/SMT-LIB/cvc5+leansmt-compiler.csv"
+
+  # cvc5+leansmt+compiler
+  python3 run_benchmarks.py "$smt_file" cvc5+leansmt+compiler \
+    --jobs "$jobs" --timeout "$timeout" --memout "$memout" \
+    --output_dir "$OUTPUT_DIR"
+  python3 collect_leansmt_stats.py "$OUTPUT_DIR/cvc5+leansmt+compiler/SMT-LIB" "$DATA_DIR/SMT-LIB/cvc5+leansmt+compiler.csv"
 
   # cvc5+ethos
   python3 run_benchmarks.py "$smt_file" cvc5+ethos \
@@ -230,7 +242,8 @@ run_smtlib_benchmarks() {
   python3 tables.py --benchmark_filter QF_ "$DATA_DIR/SMT-LIB" "$TABLES_DIR/QF_SMT-LIB.tex"
   python3 cactus.py "$DATA_DIR/SMT-LIB" "$FIGURES_DIR/SMT-LIB.pdf"
   python3 cactus.py --benchmark_filter QF_ "$DATA_DIR/SMT-LIB" "$FIGURES_DIR/SMT-LIB_QF.pdf"
-  python3 scatter.py "$DATA_DIR/SMT-LIB/cvc5+leansmt.csv" "$DATA_DIR/SMT-LIB/cvc5+ethos.csv" "$FIGURES_DIR/scatter.pdf"
+  python3 scatter.py "$DATA_DIR/SMT-LIB/cvc5+leansmt-compiler.csv" "$DATA_DIR/SMT-LIB/cvc5+ethos.csv" "$FIGURES_DIR/scatter-compiler.pdf"
+  python3 scatter.py "$DATA_DIR/SMT-LIB/cvc5+leansmt+compiler.csv" "$DATA_DIR/SMT-LIB/cvc5+ethos.csv" "$FIGURES_DIR/scatter+compiler.pdf"
 }
 
 ###############################################################################
