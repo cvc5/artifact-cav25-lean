@@ -9,7 +9,7 @@ proof_file=$(mktemp /tmp/ethos.proof.XXXXXX.cpc)
 generate_proof() {
     local input_file="$1"
     echo "(include \"/home/user/artifact/cvc5/proofs/eo/cpc/Cpc.eo\")"
-    /home/user/artifact/cvc5/build/bin/cvc5 --enum-inst --cegqi-midpoint --produce-proofs --proof-elim-subtypes --dump-proofs --proof-format=cpc --proof-granularity=dsl-rewrite "$input_file" | tail -n +2
+    /home/user/artifact/cvc5/build/bin/cvc5 --enum-inst --cegqi-midpoint --produce-proofs --proof-elim-subtypes --dump-proofs --proof-format=cpc --proof-granularity=dsl-rewrite "$input_file" | tail -n +3 | head -n -1
 }
 
 # Function to check proof

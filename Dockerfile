@@ -162,9 +162,11 @@ COPY --chown=user:group cvc5+ethos.sh /home/user/artifact/cvc5+ethos.sh
 COPY --chown=user:group collect_ethos_stats.py /home/user/artifact/collect_ethos_stats.py
 
 # Clone and build duper
-RUN git clone https://github.com/leanprover-community/duper && \
-    cd duper && \
+RUN git clone https://github.com/leanprover-community/duper
+COPY --chown=user:group skSorryAx.patch /home/user/artifact/duper/skSorryAx.patch
+RUN cd duper && \
     git checkout v0.0.26 && \
+    git apply skSorryAx.patch && \
     lake update && \
     lake build
 COPY --chown=user:group duper.sh /home/user/artifact/duper.sh
@@ -191,5 +193,5 @@ COPY --chown=user:group run_all_benchmarks.sh /home/user/artifact/run_all_benchm
 # Copy previous results
 COPY --chown=user:group data/ /home/user/artifact/data/
 
-# Set the default command to run htop
+# Set the default command to run bash
 CMD ["bash"]

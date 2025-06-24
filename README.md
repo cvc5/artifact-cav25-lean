@@ -48,7 +48,7 @@ The artifact includes:
   - `collect_*_stats.py`: parses logs into CSVs
   - `cactus.py`, `scatter±compiler.py`, `tables.py`: visualization tools
   - `data/all/seventeen`, `data/all/SMT-LIB`: data from paper evaluation (slightly modified for artifact scripts)
-**Docker Image Contents (`abdoo8080/lean-smt-artifact:v3`):**
+**Docker Image Contents (`abdoo8080/lean-smt-artifact:v4`):**
 - Precompiled versions of all tools
 - Benchmark datasets (`benchmarks/seventeen`, `benchmarks/SMT-LIB`)
 - Isabelle/AFP versions as used in the Seventeen Provers under the Hammer paper
@@ -60,19 +60,19 @@ The artifact includes:
 Pull the Docker image (available for x86 architecture):
 
 ```bash
-docker pull abdoo8080/lean-smt-artifact:v3
+docker pull abdoo8080/lean-smt-artifact:v4
 ```
 
 Or, build it from source (estimated time: 2-3 hours on recommended hardware):
 
 ```bash
-docker build -t abdoo8080/lean-smt-artifact:v3 .
+docker build -t abdoo8080/lean-smt-artifact:v4 .
 ```
 
 Then run the container:
 
 ```bash
-docker run -it abdoo8080/lean-smt-artifact:v3
+docker run -it abdoo8080/lean-smt-artifact:v4
 ```
 
 Within the container, use:
